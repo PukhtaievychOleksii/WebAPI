@@ -1,0 +1,13 @@
+
+# @name create 
+POST {{host}}/books
+Content-Type: application/json
+
+{
+  "Title": "The Catcher in the Rye",
+  "Author": "J.D. Salinger",
+  "Year": 1951
+}
+
+###
+GET {{create.response.headers.Location}}

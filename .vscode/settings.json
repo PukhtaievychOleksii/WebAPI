@@ -1,0 +1,9 @@
+{
+    "rest-client.environmentVariables": {
+
+        "$shared": {
+            "host": "http://localhost:5057",
+            "bookId": "a4e0fdcf-54ed-400e-9554-57e24871def4"
+        }
+    }
+}
