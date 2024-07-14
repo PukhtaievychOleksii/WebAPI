@@ -12,4 +12,11 @@ public class Book{
         Author = author;
         Year = year;
     }
+
+    public Book(Guid id, string title, string author, int year){
+        Id = id;
+        Title = title;
+        Author = author;
+        Year = year;
+    }
 }

@@ -1,0 +1,7 @@
+PUT {{host}}/users/{{userId}}
+Content-Type: application/json
+
+{
+    "Name": "Oleksii Pukhtaievych",
+    "Email": "OleksPuch@gmail.com"
+}

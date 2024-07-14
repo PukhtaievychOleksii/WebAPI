@@ -1,23 +1,65 @@
 
 using WebAPI.Domain;
+using ErrorOr;
+using static Shared;
 
-public class BookService
+public class BookService: IBookService
 {
-    private static readonly List<Book> _books = new List<Book>();
-    public void Create(Book book){
-        //add book to a database
-        _books.Add(book);
+    private readonly DatabaseContext _dbContext;
+
+    public BookService(DatabaseContext dbContext){
+        _dbContext = dbContext;
     }
 
-    public Book? Get(Guid bookId){
-        //fetch book from a database
-        Book? result = null;
-        foreach(Book book in _books){
-            if(book.Id == bookId){
-                result = book;
-            }
+    public ErrorOr<Created> Create(Book book){
+        //add book to a database
+        //_books.Add(book);
+        _dbContext.Books.Add(book);  
+        _dbContext.SaveChanges();
 
+        return Result.Created;
+    }
+
+    public ErrorOr<Book> Get(Guid bookId){
+     
+
+        Book? book = _dbContext.Books.Find(bookId);
+        if(book is null){
+            return Error.NotFound();
         }
-        return result;
+        return book;
+    }
+
+
+    public ErrorOr<UpdatedBook> Update(Book newBook){
+        Book? book = _dbContext.Books.Find(newBook.Id);
+        bool isNewelyCreated  = book is null;
+
+        if(isNewelyCreated){
+            _dbContext.Books.Add(newBook);
+        } else{
+            _dbContext.Books.Remove(book);
+            _dbContext.Books.Add(newBook);
+            //_dbContext.Books.Update(newBook);
         }
+
+        _dbContext.SaveChanges();
+        return new UpdatedBook(isNewelyCreated);
+
+
+    }
+
+    public ErrorOr<Deleted> Delete(Guid bookId){
+        Book? book = _dbContext.Books.Find(bookId);
+        if(book is null){
+            return Error.NotFound();
+        }
+        _dbContext.Books.Remove(book);
+        _dbContext.SaveChanges();
+        return Result.Deleted;
+    }
+
+
+
+
 }

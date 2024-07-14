@@ -3,7 +3,8 @@
 
         "$shared": {
             "host": "http://localhost:5057",
-            "bookId": "a4e0fdcf-54ed-400e-9554-57e24871def4"
+            "bookId": "d023da70-9b7d-4e43-921f-45addd29266e",
+            "userId": "5b272bcc-8ad1-4257-8bec-39b054d58612"
         }
     }
 }

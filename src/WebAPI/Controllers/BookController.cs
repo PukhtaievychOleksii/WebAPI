@@ -1,6 +1,11 @@
+using ErrorOr;
+
 using Microsoft.AspNetCore.Mvc;
 
 using WebAPI.Domain;
+
+using static Shared;
+
 [Route("books")]
 public class BookController(BookService bookService): ControllerBase
 {
@@ -8,12 +13,15 @@ public class BookController(BookService bookService): ControllerBase
 
 
     [HttpPost]
-    public IActionResult Create([FromBody] CreateBookRequest request){
+    public IActionResult Create([FromBody] BookRequest request){
         //map the request to a domain object 
         Book book = request.ToDomain();
 
         //invoke an actions on the domain object(services)
-        _bookService.Create(book);
+        ErrorOr<Created> serviceResult = _bookService.Create(book);
+        if(serviceResult.IsError){
+            return Problem("Book was not created successfully ", null, StatusCodes.Status400BadRequest);
+        }
 
         //create a response from the domain object(back to external representation)
         BookResponse response = BookResponse.FromDomain(book);
@@ -29,26 +37,48 @@ public class BookController(BookService bookService): ControllerBase
     [HttpGet("{bookId:guid}")]
     public IActionResult Get(Guid bookId){
         //invoke the service
-        Book? book = _bookService.Get(bookId);
-        if(book is null){ 
-            return Problem($"The book with id {bookId} was not found", null, StatusCodes.Status404NotFound);
+        ErrorOr<Book> serviceResult = _bookService.Get(bookId);
+        if(serviceResult.IsError){ 
+            return Problem($"The book with id {bookId} doesn't exist", null, StatusCodes.Status404NotFound);
         }
         //create a response to an external world
-        BookResponse response = BookResponse.FromDomain(book);
+        BookResponse response = BookResponse.FromDomain(serviceResult.Value);
         return Ok(response);
     }
 
 
-    public record CreateBookRequest(string Title, string Author, int Year){
-        public Book ToDomain(){
-            return new Book(Title, Author, Year);
+    [HttpDelete("{bookId:guid}")]
+    public IActionResult Delete(Guid bookId){
+        ErrorOr<Deleted> serviceResult = _bookService.Delete(bookId);
+        if(serviceResult.IsError){
+            return Problem($"The book with id {bookId} can't be deleted", null, StatusCodes.Status404NotFound);
         }
-    };
+        return NoContent();
+    }
 
-    public record BookResponse(Guid Id, string Title, string Author, int Year){
-        public static BookResponse FromDomain(Book book){
-            return new BookResponse(book.Id, book.Title, book.Author, book.Year);
+    [HttpPut("{bookId:guid}")]
+    public IActionResult Update(Guid bookId, [FromBody] BookRequest request){
+        Book newBook = request.ToDomain(bookId);
+        ErrorOr<UpdatedBook> serviceResult = _bookService.Update(newBook);
+
+        if(serviceResult.IsError){
+            return Problem("The book was not updated", null, StatusCodes.Status400BadRequest);
         }
-    };
+        
+        BookResponse response = BookResponse.FromDomain(newBook);
+        if(serviceResult.Value.isNewelyCreated){
+            return CreatedAtAction(
+                nameof(Get),
+                new {bookId = newBook.Id},
+                response
+            );
+        } else {
+            return NoContent();
+        }
+    }
+
+
+
+    
     
 }
