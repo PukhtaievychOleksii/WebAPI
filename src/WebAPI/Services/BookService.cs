@@ -12,8 +12,6 @@ public class BookService: IBookService
     }
 
     public ErrorOr<Created> Create(Book book){
-        //add book to a database
-        //_books.Add(book);
         _dbContext.Books.Add(book);  
         _dbContext.SaveChanges();
 
@@ -33,14 +31,13 @@ public class BookService: IBookService
 
     public ErrorOr<UpdatedBook> Update(Book newBook){
         Book? book = _dbContext.Books.Find(newBook.Id);
-        bool isNewelyCreated  = book is null;
-
-        if(isNewelyCreated){
+        bool isNewelyCreated = false;
+        if(book == null){
             _dbContext.Books.Add(newBook);
+            isNewelyCreated = true;
         } else{
             _dbContext.Books.Remove(book);
             _dbContext.Books.Add(newBook);
-            //_dbContext.Books.Update(newBook);
         }
 
         _dbContext.SaveChanges();

@@ -1,0 +1,12 @@
+POST {{host}}/reservations
+Content-Type: application/json
+
+{
+    "UserId": "{{userId}}",
+    "BookId": "{{bookId}}",
+    "LengthInDays": 7,
+    "isReturned": false
+    
+}
+  
+  

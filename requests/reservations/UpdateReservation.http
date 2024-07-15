@@ -1,0 +1,10 @@
+
+PUT {{host}}/reservations/{{reservationId}}
+Content-Type: application/json
+
+{
+    "UserId": "{{userId}}",
+    "BookId": "{{bookId}}",
+    "LengthInDays": 7,
+    "isReturned": true
+}
