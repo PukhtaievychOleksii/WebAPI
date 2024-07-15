@@ -1,0 +1,11 @@
+{
+    "rest-client.environmentVariables": {
+
+        "$shared": {
+            "host": "http://localhost:5057",
+            "bookId": "",
+            "userId": "",
+            "reservationId":""
+        }
+    }
+}
